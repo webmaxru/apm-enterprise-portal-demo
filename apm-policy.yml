@@ -1,0 +1,31 @@
+# Atlas org baseline policy — the "sourcing rules" for agent context.
+#
+# Discovered from the org and merged tighten-only (org -> team; children may only
+# tighten). Enforced at install time and re-checked as an unbypassable CI gate:
+#   apm audit --ci --policy webmaxru/apm-enterprise-portal-demo
+#
+# apm-policy.yml schema verified against apm CLI v0.23.1.
+
+name: Atlas org baseline
+version: "1.0"
+
+# Change management, not a toggle:
+#   warn  = measure (findings print, exit 0)
+#   block = fail closed (exit 1)  <- flip once the fleet is green
+enforcement: block
+
+dependencies:
+  # Trusted sources only. A populated allow-list means "ONLY these"; deny beats allow.
+  allow:
+    - "webmaxru/**"
+    - "anthropics/**"
+    - "microsoft/**"
+  # Ban unbounded refs (bare branch / wildcard / open range): every dependency
+  # must be pinned to a version or commit. This is the load-bearing supply-chain rule.
+  require_pinned_constraint: true
+
+manifest:
+  # Basic hygiene: every consuming repo's apm.yml must declare these.
+  required_fields:
+    - name
+    - version
